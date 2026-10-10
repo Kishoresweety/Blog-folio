@@ -1,19 +1,130 @@
-# Kishore Sakthivel — research portfolio
+# Kishore Sakthivel — Independent Research Portfolio
 
-Static site (no build step). Posts live in Supabase; the owner writes them in the browser at `#/writing`.
+**Live site: https://blog-folio-six.vercel.app**
 
-## Files
-- `index.html` page structure and meta tags
-- `styles.css`, `blog.css` styles for the home page and the Writing overlay
-- `scene.js` 3D particle scene and scroll-linked shapes
-- `home.js` project cards, hypothesis tabs, latest-post card
-- `blog.js` writing list, post view, owner sign-in and editor
-- `util.js` helpers and the Supabase-backed post store
-- `config.js` public Supabase URL and anon key (safe to publish; row-level security protects writes)
+A portfolio for independent research on AI safety, evals and quantum-informed machine learning. The page is a live 3D particle cloud that stands for a quantum state: only the bright points are "measured", and the shape stays recognisable. Below it sit the research hypothesis, the experiment plan, my projects, and a writing section for notes, articles and sources.
 
-## Writing a post
-Open `/#/writing/login`, sign in, then use **+ New post**. In the body: `## Heading`, `> quote | author`, `- list item`,
-a line of three backticks to start and end code, blank line for a new paragraph. Sources: one per line as `Title | https://link | note`.
+## Current research question
 
-## Deploy
-Push to GitHub. Vercel redeploys on every push. Framework preset: Other. No build command. Output directory: `.`
+> Can compact measurements of high-dimensional quantum states provide useful latent representations for an existing AI architecture, improving generation, search, or verification without requiring explicit reconstruction of the full quantum state?
+
+The site lays this out as three tests (search, generation, verification). Each has a prediction and a kill condition written down before any experiment is run. No results are claimed yet.
+
+## What is on the site
+
+| Section | What it shows |
+| --- | --- |
+| Origin | Introduction, headline numbers, and a slider that sets how much of the cloud is "measured" |
+| Hypothesis | The research question with tabs for search, generation and verification |
+| Experiments | The experiment log (E-00 to E-04) and current status |
+| Safety & evals | Why the work counts as AI safety: pre-registered claims, cheap verification, negative results |
+| Built | Resume Engineer, Spatial Parse, TermsGuard and ATS Optimizer |
+| Journey | Education and work history |
+| Writing | The latest post, linking to the full writing page |
+| Contact | Email and location |
+
+The cloud changes shape and colour as you scroll. Moving the mouse tilts it, and clicking empty space scatters it. The layout works on desktop and phone, in light and dark mode.
+
+## Writing: notes, articles and links
+
+Posts open at `/#/writing`. There are three kinds:
+
+- **Note**: a short thought or log entry
+- **Article**: a long piece
+- **Link**: a source worth saving, with my take
+
+Every post can have a numbered **Sources** list with links and a short note for each. The newest post is shown on the home page.
+
+### Writing a post (owner only)
+
+1. Open `/#/writing/login` and sign in.
+2. Click **+ New post**.
+3. Fill in type, date, title, summary, tags, body and sources, then click **Publish**.
+
+Body format:
+
+```
+## A heading
+A paragraph. A blank line starts a new one.
+> A quote | Who said it
+- A list item
+```
+A line containing only three backticks starts and ends a code block.
+
+Sources, one per line:
+
+```
+Title | https://link | optional note
+```
+
+Drafts are kept in the browser while you type. Delete asks for a second click.
+
+## How it works
+
+- **No build step.** Plain HTML, CSS and JavaScript. Vercel serves the files as they are.
+- **3D scene.** A custom 3D projection drawn on a Canvas 2D element (2,400 points), with no 3D library.
+- **Posts** are stored in a Supabase Postgres table and read by the browser through the Supabase JavaScript library.
+- **Security** is enforced in the database, not in the page. Row-level security lets everyone read posts, and only the owner's verified email can insert, update or delete them. The key in `config.js` is the public Supabase publishable key and is meant to be visible.
+- **Text is escaped** before it is shown, and only `http` and `https` links are accepted as sources.
+
+## Project structure
+
+```
+index.html    Page structure and meta tags
+styles.css    Home page styles and theme colours
+blog.css      Styles for the writing pages and editor
+scene.js      3D cloud, shapes per section, scroll and pointer effects
+home.js       Project cards, hypothesis tabs, latest-post card
+blog.js       Writing list, post view, owner sign-in and editor
+util.js       Helpers, text-to-post conversion and the Supabase post store
+config.js     Public Supabase URL and key
+vercel.json   Security headers and clean URLs
+```
+
+## Run your own copy
+
+1. **Create a Supabase project**, then run this in the SQL editor. Replace the email with the one that may write posts.
+
+   ```sql
+   create table public.posts (
+     id text primary key,
+     type text not null check (type in ('note','article','link')),
+     date date not null,
+     title text not null check (char_length(title) between 1 and 140),
+     summary text not null default '' check (char_length(summary) <= 220),
+     tags text[] not null default '{}',
+     body jsonb not null default '[]'::jsonb,
+     sources jsonb not null default '[]'::jsonb,
+     updated_at timestamptz not null default now()
+   );
+   alter table public.posts enable row level security;
+
+   create policy "posts are public to read" on public.posts
+     for select to anon, authenticated using (true);
+
+   create policy "owner can insert posts" on public.posts
+     for insert to authenticated
+     with check ((auth.jwt() ->> 'email') = 'you@example.com');
+   create policy "owner can update posts" on public.posts
+     for update to authenticated
+     using ((auth.jwt() ->> 'email') = 'you@example.com')
+     with check ((auth.jwt() ->> 'email') = 'you@example.com');
+   create policy "owner can delete posts" on public.posts
+     for delete to authenticated
+     using ((auth.jwt() ->> 'email') = 'you@example.com');
+   ```
+
+2. **Create your login** in Supabase under Authentication → Users → Add user, with auto-confirm ticked. Use the same email as in the policies.
+3. **Turn off public sign-ups** in the Supabase Authentication settings.
+4. **Edit `config.js`** with your project URL and publishable key (Project Settings → API).
+5. **Deploy** to Vercel or Netlify: import the repo, framework "Other", no build command, output directory `.`. Every push to `main` then redeploys.
+
+## Notes
+
+- Text content (hypothesis, experiment log, project descriptions) is written directly in `index.html`. To change it, edit that file and push.
+- The experiment log lists the planned protocol only. Results will be added when there are results.
+
+## Contact
+
+Kishore Sakthivel — Thanjavur, India (open to relocation)
+kishore.sakthivel@zohomail.in
