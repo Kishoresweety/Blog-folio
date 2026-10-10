@@ -21,9 +21,31 @@ The site lays this out as three tests (search, generation, verification). Each h
 | Built | Resume Engineer, Spatial Parse, TermsGuard and ATS Optimizer |
 | Journey | Education and work history |
 | Writing | The latest post, linking to the full writing page |
-| Contact | Email and location |
+| Contact | Email, location, and links to GitHub and the Works page |
 
 The cloud changes shape and colour as you scroll. Moving the mouse tilts it, and clicking empty space scatters it. The layout works on desktop and phone, in light and dark mode.
+
+## Works page
+
+`works.html` is a separate page that showcases projects. It has no database. Each project is one line in the HTML:
+
+```html
+<a class="work" href="https://github.com/owner/repo" data-tags="AI"></a>
+```
+
+The title, description and thumbnail are fetched from the link when the page loads: GitHub repos use the GitHub API and their social preview image, and other sites use the page's title, description and preview image through microlink.io. Anything can be written by hand instead and always wins over the automatic value:
+
+| Attribute | What it sets |
+| --- | --- |
+| `data-title` | Project name |
+| `data-desc` | One or two sentences |
+| `data-image` | Thumbnail URL, or an image file in the repo |
+| `data-tags` | Comma-separated tags. These also build the filter buttons |
+| `data-status` | Small badge on the thumbnail, for example `Live` |
+
+If every field is written by hand, nothing is fetched. Fetched results are cached in the visitor's browser for 12 hours. If a lookup fails, the card still shows the repo or site name, with a placeholder when there is no image.
+
+The page uses three colours in a 50 / 30 / 10 split: black `#000000` for the background, white `#ffffff` for the cards, and `#2C3480` for accents. The background is a slow light beam sweeping over a drifting grid. Motion is switched off for visitors who prefer reduced motion.
 
 ## Writing: notes, articles and links
 
@@ -71,6 +93,7 @@ Drafts are kept in the browser while you type. Delete asks for a second click.
 
 ```
 index.html    Page structure and meta tags
+works.html    Project showcase page (works.css and works.js style and fill it)
 styles.css    Home page styles and theme colours
 blog.css      Styles for the writing pages and editor
 scene.js      3D cloud, shapes per section, scroll and pointer effects

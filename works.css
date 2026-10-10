@@ -1,0 +1,140 @@
+/* Works page.
+   Colour plan, roughly 50 / 30 / 10:
+   50%  black  #000000  page background and the beam scene
+   30%  white  #ffffff  project cards and headings
+   10%  blue   #2C3480  beam light, tag chips, buttons, hover block shadow
+   Blue is too dark to read as text on black (about 1.9:1), so it is only used as a fill, a glow
+   or a shadow. Text on blue is white (about 11:1). */
+:root {
+  --black: #000000;
+  --white: #ffffff;
+  --blue: #2C3480;
+  --ink-soft: #3b3b44;          /* body text on white cards */
+  --white-soft: rgba(255,255,255,.72);
+  --white-faint: rgba(255,255,255,.10);
+  --radius: 3px;
+  --ease: cubic-bezier(.2,.7,.2,1);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--white);
+  font: 15px/1.6 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; box-shadow: 0 0 0 5px var(--blue); }
+
+/* ---------- Background: a measuring beam sweeping over a moving grid ---------- */
+.bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.bg i { position: absolute; display: block; }
+.grid {
+  inset: -56px 0 0 0;
+  background-image:
+    linear-gradient(var(--white-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--white-faint) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 70% at 70% 30%, #000 20%, transparent 78%);
+          mask-image: radial-gradient(ellipse 85% 70% at 70% 30%, #000 20%, transparent 78%);
+  animation: drift 7s linear infinite;
+}
+.beam {
+  width: 160vmax; height: 160vmax;
+  left: calc(70% - 80vmax); top: calc(-20% - 60vmax);
+  background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, transparent 300deg, rgba(44,52,128,.0) 306deg, rgba(44,52,128,.95) 340deg, rgba(44,52,128,.0) 360deg);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0, #000 28%, transparent 50%);
+          mask-image: radial-gradient(circle at 50% 50%, #000 0, #000 28%, transparent 50%);
+  filter: blur(20px);
+  transform-origin: 50% 50%;
+  animation: sweep 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes drift { to { transform: translateY(56px); } }
+@keyframes sweep { from { transform: rotate(-38deg); } to { transform: rotate(38deg); } }
+
+/* ---------- Layout ---------- */
+.top, .page, .foot { position: relative; z-index: 1; width: 100%; max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: calc(22px + env(safe-area-inset-top, 0px)); }
+.top a { text-decoration: none; font-size: 14px; font-weight: 500; }
+.back { letter-spacing: .01em; }
+.top nav { display: flex; gap: 22px; }
+.top nav a { color: var(--white-soft); transition: color .2s; }
+.top nav a:hover, .back:hover { color: var(--white); }
+.page { padding-top: clamp(40px, 8vw, 84px); padding-bottom: 80px; }
+
+.label { margin: 0 0 14px; font: 500 11px/1.5 'IBM Plex Mono', monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--white-soft); }
+.label::before { content: ""; display: inline-block; width: 22px; height: 8px; background: var(--blue); margin-right: 10px; vertical-align: 1px; }
+h1 { margin: 0 0 14px; font-size: clamp(34px, 5.4vw, 56px); line-height: 1.05; letter-spacing: -.03em; font-weight: 600; text-wrap: balance; }
+.lede { margin: 0; max-width: 520px; color: var(--white-soft); font-size: 16px; }
+.bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin: 38px 0 26px; padding-top: 18px; border-top: 1px solid var(--white-faint); }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.filters button {
+  font: inherit; font-size: 13px; color: var(--white-soft); background: transparent;
+  border: 1px solid rgba(255,255,255,.28); border-radius: 99px; padding: 6px 14px; cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.filters button:hover { border-color: var(--white); color: var(--white); }
+.filters button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: var(--white); }
+.count { margin: 0; font: 500 12px/1 'IBM Plex Mono', monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--white-soft); }
+.empty { color: var(--white-soft); }
+
+/* ---------- Cards ---------- */
+.grid-works { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 26px; }
+.work {
+  display: flex; flex-direction: column; min-width: 0;
+  background: var(--white); color: var(--black);
+  border-radius: var(--radius); text-decoration: none; overflow: hidden;
+  box-shadow: 0 0 0 0 var(--blue);
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease);
+  animation: rise .7s var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+.work:hover, .work:focus-visible { transform: translate(-5px, -5px); box-shadow: 9px 9px 0 0 var(--blue); }
+@keyframes rise { from { opacity: 0; transform: translateY(26px); } }
+
+.thumb { position: relative; aspect-ratio: 1.91 / 1; background: #07070d; overflow: hidden; border-bottom: 1px solid #e3e3e8; }
+.thumb .ph {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font: 600 64px/1 'Inter', sans-serif; color: rgba(255,255,255,.9);
+  background:
+    linear-gradient(135deg, transparent 0 55%, rgba(44,52,128,.9) 55% 100%),
+    linear-gradient(var(--white-faint) 1px, transparent 1px) 0 0 / 100% 28px,
+    #000;
+}
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .5s, transform .6s var(--ease); }
+.thumb img.on { opacity: 1; }
+.work:hover .thumb img, .work:focus-visible .thumb img { transform: scale(1.045); }
+.status { position: absolute; left: 12px; top: 12px; font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--white); background: var(--blue); padding: 6px 8px; }
+
+.body { display: flex; flex-direction: column; gap: 10px; padding: 18px 18px 16px; flex: 1; min-width: 0; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--white); background: var(--blue); padding: 5px 7px; }
+.t { margin: 0; font-size: 19px; line-height: 1.25; letter-spacing: -.01em; font-weight: 600; overflow-wrap: anywhere; }
+.d { margin: 0; color: var(--ink-soft); font-size: 14.5px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.d.loading { color: transparent; background: linear-gradient(90deg, #ececf1 25%, #f6f6f9 50%, #ececf1 75%) 0 0 / 200% 100%; border-radius: 2px; min-height: 3.1em; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.foot-row { margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid #e3e3e8; }
+.host { font: 500 11.5px/1.2 'IBM Plex Mono', monospace; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.go { flex: none; font-size: 13px; font-weight: 500; color: var(--white); background: var(--blue); padding: 7px 13px; display: inline-flex; gap: 6px; align-items: center; }
+.go b { font-weight: 500; display: inline-block; transition: transform .3s var(--ease); }
+.work:hover .go b, .work:focus-visible .go b { transform: translate(3px, -3px); }
+
+.foot { display: flex; flex-wrap: wrap; gap: 8px 28px; padding-block: 28px calc(40px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--white-faint); font-size: 14px; color: var(--white-soft); }
+.foot a { text-decoration: none; color: var(--white); }
+.foot a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+@media (max-width: 560px) {
+  .grid-works { gap: 20px; }
+  .bar { margin-top: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .grid, .beam, .work, .d.loading { animation: none; }
+  .work, .thumb img, .go b { transition: none; }
+  .beam { transform: rotate(8deg); }
+}
