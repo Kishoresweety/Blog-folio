@@ -103,15 +103,62 @@
     fetchMeta(url).then(d => { writeCache(url, d); apply(d); }).catch(() => apply({}));
   }
 
+  // ---------- motion: pointer tilt, sheen position and scroll reveal ----------
+  const canTilt = matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function tilt(card) {
+    if (!canTilt) return;
+    let frame = 0;
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        card.style.setProperty('--mx', (x * 100).toFixed(1) + '%');
+        card.style.setProperty('--my', (y * 100).toFixed(1) + '%');
+        card.style.setProperty('--ry', ((x - .5) * 9).toFixed(2) + 'deg');
+        card.style.setProperty('--rx', ((.5 - y) * 7).toFixed(2) + 'deg');
+      });
+    });
+    card.addEventListener('pointerleave', () => {
+      cancelAnimationFrame(frame);
+      card.style.setProperty('--rx', '0deg');
+      card.style.setProperty('--ry', '0deg');
+    });
+  }
+
+  // Cards start hidden (class "pre") and blur in as they enter the screen, a few at a time.
+  function reveal() {
+    cards.forEach(c => c.classList.add('pre'));
+    if (!('IntersectionObserver' in window)) { cards.forEach(c => c.classList.add('in')); return; }
+    const io = new IntersectionObserver(entries => {
+      entries.filter(e => e.isIntersecting).forEach((e, k) => {
+        e.target.style.setProperty('--d', k * 90 + 'ms');
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      });
+    }, {threshold: .08, rootMargin: '0px 0px -6% 0px'});
+    cards.forEach(c => io.observe(c));
+  }
+
+  // Play the entrance again for the cards that stay after a filter is chosen.
+  function replay(visible) {
+    visible.forEach((c, k) => { c.style.setProperty('--d', k * 70 + 'ms'); c.classList.remove('in'); });
+    void grid.offsetWidth;
+    requestAnimationFrame(() => visible.forEach(c => c.classList.add('in')));
+  }
+
   // ---------- filters ----------
   function filters() {
     const wrap = document.getElementById('filters');
     const all = [...new Set(cards.flatMap(c => list(c.dataset.tags)))];
     const count = document.getElementById('count');
     const empty = document.getElementById('empty');
-    const show = tag => {
+    const show = (tag, animate) => {
       let n = 0;
-      cards.forEach(c => { const ok = !tag || list(c.dataset.tags).includes(tag); c.hidden = !ok; if (ok) n++; });
+      const visible = [];
+      cards.forEach(c => { const ok = !tag || list(c.dataset.tags).includes(tag); c.hidden = !ok; if (ok) { n++; visible.push(c); } });
+      if (animate) replay(visible);
       count.textContent = n + (n === 1 ? ' project' : ' projects');
       empty.hidden = n > 0;
       [...wrap.children].forEach(b => b.setAttribute('aria-pressed', String((b.dataset.tag || '') === (tag || ''))));
@@ -121,7 +168,7 @@
         const b = el('button', '', t || 'All');
         b.type = 'button';
         b.dataset.tag = t;
-        b.onclick = () => show(t);
+        b.onclick = () => show(t, true);
         wrap.append(b);
       });
     }
@@ -129,5 +176,7 @@
   }
 
   cards.forEach(build);
+  cards.forEach(tilt);
   filters();
+  reveal();
 })();

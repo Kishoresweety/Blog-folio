@@ -45,7 +45,15 @@ The title, description and thumbnail are fetched from the link when the page loa
 
 If every field is written by hand, nothing is fetched. Fetched results are cached in the visitor's browser for 12 hours. If a lookup fails, the card still shows the repo or site name, with a placeholder when there is no image.
 
-The page uses three colours in a 50 / 30 / 10 split: black `#000000` for the background, white `#ffffff` for the cards, and `#2C3480` for accents. The background is a slow light beam sweeping over a drifting grid. Motion is switched off for visitors who prefer reduced motion.
+The page uses three colours in a 50 / 30 / 10 split: black `#000000` for the background, white `#ffffff` for the frosted glass and text, and `#2C3480` for accents. The cards and the top bar are glassmorphism: translucent, blurred panels over a black scene made of a slow light beam, a drifting grid and three soft orbs.
+
+Card motion:
+- cards blur in as they scroll into view, a few at a time, and play the entrance again when a filter is chosen
+- on a mouse, cards tilt toward the pointer and a soft sheen follows it
+- on hover a light arc travels around the border, a scan sweeps across the thumbnail, the title underlines itself and the Open button turns white
+- cards float gently while idle, and the Live badge pulses
+
+Touch screens skip the tilt. Everything moves less or not at all for visitors who prefer reduced motion.
 
 ## Writing: notes, articles and links
 
