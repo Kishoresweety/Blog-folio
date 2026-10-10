@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kishore Sakthivel — Independent Researcher</title>
+<meta name="description" content="Independent researcher working on AI safety, evals and quantum-informed machine learning. Notes, experiments and writing.">
+<meta property="og:title" content="Kishore Sakthivel — Independent Researcher">
+<meta property="og:description" content="Can compact quantum measurements give useful latents for AI, without reconstructing the full state? Experiments, notes and sources.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2307070c'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23d6ff3c'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='5' fill='none' stroke='%23d6ff3c' stroke-width='1.4' transform='rotate(40 16 16)'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='5' fill='none' stroke='%23d6ff3c' stroke-width='1.4' transform='rotate(-40 16 16)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="blog.css">
+</head>
+<body>
+<div id="pg"></div>
+<div id="blog" hidden></div>
+<header><span class="nm">K. Sakthivel</span><span><a class="hl" href="#/writing">Writing</a><span id="cur"></span><button id="th" aria-label="Toggle theme">◐</button></span></header>
+<nav id="rail"></nav>
+<canvas id="c"></canvas>
+<main>
+<section class="s hero" data-k="|ψ⟩" data-n="Origin"><div class="cd">
+<p class="k">Independent researcher · AI safety · evals · quantum-informed ML</p>
+<h1>Kishore<br><i>Sakthivel</i></h1>
+<p class="lead">I run small, falsifiable experiments on one question: how little do you need to observe to know enough? The cloud behind this page is a 2,400-amplitude state, and only the bright points are measured.</p>
+<a class="btn f" href="#hyp">Read the hypothesis</a><a class="btn" href="#contact">Get in touch</a>
+<div class="stats"><div><b>100+</b><span>documents analysed<br>by my AI systems</span></div><div><b>&gt;70%</b><span>RAG token cut,<br>Spatial Parse</span></div><div><b>&lt;5ms</b><span>per page,<br>non-AI engine</span></div></div>
+</div></section>
+
+<section class="s R" id="hyp" data-k="|H⟩" data-n="Hypothesis"><div class="cd">
+<p class="k">Current research</p><h2>Measure a little.<br><i>Learn a lot.</i></h2>
+<p class="hy">Can compact measurements of high-dimensional quantum states provide useful latent representations for an existing AI architecture, improving generation, search, or verification without requiring explicit reconstruction of the full quantum state?</p>
+<div class="tb" id="tb"><button class="on">A · Search</button><button>B · Generation</button><button>C · Verification</button></div>
+<div id="tp"></div>
+</div></section>
+
+<section class="s" data-k="|E⟩" data-n="Experiments"><div class="cd">
+<p class="k">Protocol · no results claimed yet</p><h2>Kill conditions<br><i>come first.</i></h2>
+<div class="tl">
+<div class="r"><b>E-00</b><span class="tg">running</span><br>State families, measurement schemes, baselines: raw state, random projection, PCA.</div>
+<div><b>E-01</b><span class="tg">planned</span><br>Search accuracy vs number of measurements under shot noise.</div>
+<div><b>E-02</b><span class="tg">planned</span><br>Adapter on the latent for a frozen generator, with a parameter-matched ablation.</div>
+<div><b>E-03</b><span class="tg">planned</span><br>Drift detection vs fidelity estimation at equal shot budget.</div>
+<div><b>E-04</b><span class="tg">planned</span><br>Public write-up with code, seeds and negative results.</div></div>
+</div></section>
+
+<section class="s R" data-k="|S⟩" data-n="Safety & evals"><div class="cd">
+<p class="k">Why this counts as AI safety</p><h2>Claims that<br><i>can fail.</i></h2>
+<div class="pl">
+<div><b>Pre-registered</b>Baselines and failure criteria are written before any run.</div>
+<div><b>Cheap verification</b>Checking a system from partial observations is the core safety skill.</div>
+<div><b>Negative results</b>A dead hypothesis is logged and published, not buried.</div>
+<div><b>Reproducible</b>Fixed seeds, public code, matched budgets in every ablation.</div></div>
+</div></section>
+
+<section class="s" data-k="|B⟩" data-n="Built"><div class="cd">
+<p class="k">Shipping is my research taste · tap to open</p><h2>Systems<br><i>that run.</i></h2>
+<div class="pc"><h3>Resume Engineer</h3><div class="st">LIVE · React, TypeScript, Supabase, Groq</div><div class="mo">AI resume platform that pairs rule-based keyword matching with <em>selective</em> LLM use, cutting unnecessary inference. Includes job-description analysis, PDF export, auth and subscriptions.</div></div>
+<div class="pc"><h3>Spatial Parse</h3><div class="st">ACTIVE · Go, Rust, Wasm, R-Trees</div><div class="mo">A <em>deterministic, non-AI</em> PDF extraction engine for RAG. R-Trees handle multi-column layout, frequency profiling strips headers and footers, and a streaming design keeps memory near flat on 500+ page files.</div></div>
+<div class="pc"><h3>TermsGuard · ATS Optimizer</h3><div class="st">AI SYSTEMS · Python, RAG, agents</div><div class="mo">Document-analysis systems tested on 100+ documents, with RAG pipelines and agents that reduced manual analysis effort by about 40%.</div></div>
+</div></section>
+
+<section class="s R" data-k="|J⟩" data-n="Journey"><div class="cd">
+<p class="k">Path</p><h2>Engineer first,<br><i>then researcher.</i></h2>
+<div class="tl">
+<div class="r"><b>Jun 2025 →</b><br>Independent Researcher, AI systems and quantum-informed ML.</div>
+<div><b>2025</b><br>Freelance writer: CVs, ATS resumes, cover letters.</div>
+<div><b>2023</b><br>Operations Associate, Flipkart Seller Hub, Bengaluru.</div>
+<div><b>2022</b><br>Freelance web developer: Python, APIs.</div>
+<div><b>2021</b><br>B.E. Computer Science, Arulmurugan College of Engineering. CGPA 7.99.</div></div>
+</div></section>
+
+<section class="s" id="writing" data-k="|W⟩" data-n="Writing"><div class="cd"><p class="k">Latest from the notebook</p><h2>Notes, drafts<br><i>and sources.</i></h2><div id="latest"></div><a class="btn f" href="#/writing">All writing →</a></div></section>
+
+<section class="s R" id="contact" data-k="|C⟩" data-n="Contact"><div class="cd">
+<p class="k">Open to fellowships, collaboration and critique</p><h2>Try to<br><i>break it.</i></h2>
+<p>The best reviewer is the one who attacks the hypothesis.</p>
+<p><a class="em" id="ml" href="mailto:kishore.sakthivel@zohomail.in">kishore.sakthivel@zohomail.in</a></p>
+<button class="btn f" id="cp">Copy email</button>
+<p class="k" style="margin-top:18px">Thanjavur, India · open to relocation<br>GitHub · LinkedIn · add your links here</p>
+</div></section>
+</main>
+<div id="hud"><span id="hl"></span><input id="m" type="range" min="1" max="100" value="35" aria-label="Fraction measured"><span>drag to measure less or more. The shape survives.</span></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="util.js"></script>
+<script src="scene.js"></script>
+<script src="home.js"></script>
+<script src="blog.js"></script>
+</body>
+</html>

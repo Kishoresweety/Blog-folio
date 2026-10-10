@@ -1,0 +1,40 @@
+/* Writing overlay. Uses the page's theme tokens (--bg --ink --mute --line --glass --a). */
+#blog{position:fixed;inset:0;z-index:30;background:var(--bg);color:var(--ink);overflow:auto;padding-top:env(safe-area-inset-top,0px)}
+#blog[hidden]{display:none}
+#blog .bw{max-width:760px;margin:0 auto;padding:20px 16px 90px}
+#blog a{color:var(--a)}
+#blog .mono{font:500 11px/1.5 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+#blog .bt{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;font-size:14px}
+#blog .bt a:first-child{color:var(--ink);text-decoration:none;font-weight:500}
+#blog .bnew{border:1px solid var(--a);padding:6px 14px;border-radius:99px;text-decoration:none}
+#blog h1{font-size:clamp(26px,4.5vw,38px);line-height:1.15;letter-spacing:-.02em;font-weight:600;margin:6px 0 8px}
+#blog h2{font-size:21px;font-weight:600;margin:30px 0 8px}
+#blog .intro{color:var(--mute);margin:0 0 22px}
+#blog .warn{border:1px dashed var(--line);padding:10px 14px;font-size:14px;color:var(--mute);border-radius:6px}
+#blog .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+#blog .filters button{font:inherit;font-size:13px;padding:6px 14px;border:1px solid var(--line);background:none;color:var(--mute);border-radius:99px;cursor:pointer}
+#blog .filters button.on{border-color:var(--a);color:var(--ink)}
+#blog .item{display:block;text-decoration:none;color:inherit;border-top:1px solid var(--line);padding:18px 0}
+#blog .item h3{font-size:19px;line-height:1.3;margin:6px 0;font-weight:600}
+#blog .item:hover h3{color:var(--a)}
+#blog .item p{margin:0;color:var(--mute);font-size:15px}
+#blog .back{display:inline-block;margin-bottom:20px;font-size:14px}
+#blog .post p{margin:0 0 16px}
+#blog .post blockquote{margin:20px 0;padding-left:16px;border-left:2px solid var(--a);color:var(--mute)}
+#blog .post cite{display:block;font-size:13px;margin-top:4px}
+#blog .post pre{background:var(--glass);border:1px solid var(--line);padding:14px;overflow:auto;font:13px/1.6 'IBM Plex Mono',monospace;border-radius:6px}
+#blog .post ul{padding-left:20px;margin:0 0 16px}
+#blog .tags span{font-size:12px;color:var(--mute);margin-right:10px}
+#blog .src{margin-top:32px;border-top:1px solid var(--line);padding-top:14px}
+#blog .src li{margin-bottom:8px;font-size:14px}#blog .src small{display:block;color:var(--mute)}
+#blog .tools{display:flex;gap:18px;align-items:center;margin-top:30px;font-size:14px}
+#blog .tools button,#blog .tools a{font:inherit;background:none;border:0;color:var(--mute);cursor:pointer;padding:0;text-decoration:underline}
+#blog .tools .primary{background:var(--a);color:var(--bg);text-decoration:none;padding:10px 22px;border-radius:99px;font-weight:600}
+#blog .tools .primary:disabled{opacity:.6}
+#blog form label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mute);margin-bottom:16px;min-width:0}
+#blog form input,#blog form select,#blog form textarea{font:15px/1.6 'Inter',system-ui,sans-serif;color:var(--ink);background:var(--glass);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%}
+#blog form textarea{resize:vertical;font-family:'IBM Plex Mono',monospace;font-size:14px}
+#blog form input:focus,#blog form select:focus,#blog form textarea:focus{outline:2px solid var(--a);outline-offset:1px}
+#blog .r2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#blog .hint{font-size:12.5px;color:var(--mute);margin:-8px 0 16px}
+#blog .err{color:#d6453a;font-size:14px;min-height:1.4em;margin:0}
