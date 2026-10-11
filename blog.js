@@ -4,6 +4,13 @@ const blog = document.getElementById('blog');
 const HOME_TITLE = document.title;
 let filter = 'all';
 
+// ---------- small helpers ----------
+const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (_) { return ''; } };
+const wordCount = p => (p.body || []).map(b => typeof b === 'string' ? b : (b.h || b.quote || b.code || (b.list || []).join(' ') || '')).join(' ').split(/\s+/).filter(Boolean).length;
+const readTime = p => Math.max(1, Math.round(wordCount(p) / 200)) + ' min read';
+const badge = t => '<span class="badge b-' + esc(t) + '">' + esc(TYPE[t] || t) + '</span>';
+const ripple = '<div class="deco" aria-hidden="true"><i></i><i></i><i></i><b></b></div>';
+
 const block = b => {
   if (typeof b === 'string') return '<p>' + esc(b) + '</p>';
   if (b.h) return '<h2>' + esc(b.h) + '</h2>';
@@ -12,32 +19,49 @@ const block = b => {
   if (b.list) return '<ul>' + b.list.map(i => '<li>' + esc(i) + '</li>').join('') + '</ul>';
   return '';
 };
+
 const sourcesHtml = p => !(p.sources && p.sources.length) ? '' :
-  '<div class="src"><div class="mono">Sources</div><ol>' + p.sources.map(s =>
-    '<li><a href="' + esc(safeUrl(s.url)) + '" target="_blank" rel="noopener noreferrer">' + esc(s.title) + '</a>' +
-    (s.note ? '<small>' + esc(s.note) + '</small>' : '') + '</li>').join('') + '</ol></div>';
-const shell = inner => '<div class="bw"><div class="bt"><a href="#/">← Home</a>' +
+  '<aside class="src"><p class="mono">Sources</p><ol>' + p.sources.map(s =>
+    '<li><a href="' + esc(safeUrl(s.url)) + '" target="_blank" rel="noopener noreferrer"><span class="st">' + esc(s.title) + '</span>' +
+    '<span class="sh">' + esc(hostOf(s.url)) + ' ↗</span></a>' + (s.note ? '<small>' + esc(s.note) + '</small>' : '') + '</li>').join('') + '</ol></aside>';
+
+// Page frame: top bar plus the view. `view` lets the stylesheet size each page differently.
+const shell = (inner, view) => '<div class="bw" data-view="' + (view || 'list') + '"><div class="bt"><a class="home" href="#/">← Home</a>' +
   (Store.canWrite ? '<a class="bnew" href="#/writing/new">+ New post</a>' : '') + '</div>' + inner + '</div>';
 
+// ---------- list ----------
 function listView() {
-  const posts = sorted().filter(p => filter === 'all' || p.type === filter);
+  const all = sorted();
+  const posts = all.filter(p => filter === 'all' || p.type === filter);
   const tabs = [['all', 'All'], ['note', 'Notes'], ['article', 'Articles'], ['link', 'Links']];
+  const count = t => t === 'all' ? all.length : all.filter(p => p.type === t).length;
   const empty = Store.loading ? 'Loading…' : Store.error || 'Nothing here yet.';
-  blog.innerHTML = shell('<p class="mono">Writing</p><h1>Notes, articles and sources</h1>' +
+  const card = (p, i) => '<a class="item' + (i === 0 ? ' lead' : '') + '" style="--i:' + i + '" href="#/writing/' + esc(p.id) + '">' +
+    '<div class="meta">' + badge(p.type) + '<span class="date">' + fmtDate(p.date) + '</span>' + (i === 0 && filter === 'all' ? '<span class="flag">Latest</span>' : '') + '</div>' +
+    '<h3><span>' + esc(p.title) + '</span></h3><p>' + esc(p.summary) + '</p>' +
+    '<div class="more"><span>' + readTime(p) + ((p.sources || []).length ? ' · ' + p.sources.length + ' sources' : '') + '</span><b>Read →</b></div></a>';
+  blog.innerHTML = shell('<header class="mast">' + ripple + '<p class="mono">Writing</p><h1>Notes, articles<br>and sources</h1>' +
     '<p class="intro">Short notes, long pieces, and links I have read with my take.</p>' +
-    '<div class="filters">' + tabs.map(t => '<button data-f="' + t[0] + '" class="' + (filter === t[0] ? 'on' : '') + '">' + t[1] + '</button>').join('') + '</div>' +
-    (posts.map(p => '<a class="item" href="#/writing/' + esc(p.id) + '"><span class="mono">' + TYPE[p.type] + ' · ' + fmtDate(p.date) + '</span><h3>' + esc(p.title) + '</h3><p>' + esc(p.summary) + '</p></a>').join('') || '<p class="intro">' + esc(empty) + '</p>') +
-    '<div class="tools" style="margin-top:44px">' + (Store.canWrite ? '<button id="out">Sign out</button>' : '<a href="#/writing/login">Owner sign in</a>') + '</div>');
+    '<div class="filters" role="group" aria-label="Filter posts">' + tabs.map(t => '<button data-f="' + t[0] + '" class="' + (filter === t[0] ? 'on' : '') + '">' + t[1] + '<i>' + count(t[0]) + '</i></button>').join('') + '</div></header>' +
+    (posts.length ? '<div class="cards">' + posts.map(card).join('') + '</div>' : '<p class="empty">' + esc(empty) + '</p>') +
+    '<div class="tools end">' + (Store.canWrite ? '<button id="out">Sign out</button>' : '<a href="#/writing/login">Owner sign in</a>') + '</div>');
   blog.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { filter = b.dataset.f; listView(); });
   const out = document.getElementById('out');
   if (out) out.onclick = () => Store.sb.auth.signOut();
 }
 
+// ---------- single post ----------
 function postView(p) {
   const tools = Store.canWrite ? '<div class="tools"><a href="#/writing/edit/' + esc(p.id) + '">Edit</a><button id="del">Delete</button></div>' : '';
-  blog.innerHTML = shell('<a class="back" href="#/writing">← All writing</a><article class="post"><div class="mono">' + TYPE[p.type] + ' · ' + fmtDate(p.date) + '</div><h1>' + esc(p.title) + '</h1>' +
-    '<div class="tags">' + (p.tags || []).map(t => '<span>#' + esc(t) + '</span>').join('') + '</div><div style="height:18px"></div>' +
-    p.body.map(block).join('') + sourcesHtml(p) + '</article>' + tools);
+  blog.innerHTML = shell('<div class="prog" id="prog"></div>' +
+    '<header class="mast post-mast">' + ripple + '<a class="back" href="#/writing">← All writing</a>' +
+    '<div class="meta">' + badge(p.type) + '<span class="date">' + fmtDate(p.date) + ' · ' + readTime(p) + '</span></div>' +
+    '<h1>' + esc(p.title) + '</h1>' +
+    ((p.tags || []).length ? '<div class="tags">' + p.tags.map(t => '<span>#' + esc(t) + '</span>').join('') + '</div>' : '') + '</header>' +
+    '<article class="post">' + p.body.map(block).join('') + sourcesHtml(p) + '</article>' + tools, 'post');
+  // Reading progress: an amber bar that fills as you scroll the article
+  const bar = document.getElementById('prog');
+  blog.onscroll = () => { const m = blog.scrollHeight - blog.clientHeight; bar.style.width = (m > 0 ? blog.scrollTop / m * 100 : 0) + '%'; };
   const del = document.getElementById('del');
   if (del) del.onclick = async () => {
     if (!del.dataset.sure) { del.dataset.sure = 1; del.textContent = 'Click again to delete'; return; }
@@ -48,11 +72,12 @@ function postView(p) {
   };
 }
 
+// ---------- owner sign in ----------
 function loginView() {
-  blog.innerHTML = shell('<p class="mono">Owner</p><h1>Sign in</h1><p class="intro">Only the site owner can write posts.</p>' +
-    '<form id="lg"><label>Email<input id="l-email" type="email" autocomplete="username" required></label>' +
+  blog.innerHTML = shell('<header class="mast mini">' + ripple + '<p class="mono">Owner</p><h1>Sign in</h1><p class="intro">Only the site owner can write posts.</p></header>' +
+    '<form id="lg" class="panel"><label>Email<input id="l-email" type="email" autocomplete="username" required></label>' +
     '<label>Password<input id="l-pass" type="password" autocomplete="current-password" required></label>' +
-    '<p class="err" id="err" role="alert"></p><div class="tools"><button class="primary" id="go" type="submit">Sign in</button></div></form>');
+    '<p class="err" id="err" role="alert"></p><div class="tools"><button class="primary" id="go" type="submit">Sign in</button></div></form>', 'form');
   document.getElementById('lg').onsubmit = async e => {
     e.preventDefault();
     const btn = document.getElementById('go'), err = document.getElementById('err');
@@ -63,6 +88,7 @@ function loginView() {
   };
 }
 
+// ---------- editor ----------
 function editorView(existing) {
   const p = existing || {type: 'note', date: new Date().toISOString().slice(0, 10), title: '', summary: '', tags: [], body: [], sources: []};
   const key = 'draft:' + (existing ? existing.id : 'new');
@@ -70,8 +96,8 @@ function editorView(existing) {
   try { draft = JSON.parse(localStorage.getItem(key) || 'null'); } catch (_) {}
   const v = draft || {type: p.type, date: p.date, title: p.title, summary: p.summary, tags: (p.tags || []).join(', '), body: bodyToText(p.body), sources: sourcesToText(p.sources)};
   const names = ['type', 'date', 'title', 'summary', 'tags', 'body', 'sources'];
-  blog.innerHTML = shell('<p class="mono">' + (existing ? 'Edit post' : 'New post') + '</p><h1>' + (existing ? 'Edit' : 'Write') + '</h1>' +
-    '<form id="ed" autocomplete="off">' +
+  blog.innerHTML = shell('<header class="mast mini">' + ripple + '<p class="mono">' + (existing ? 'Edit post' : 'New post') + '</p><h1>' + (existing ? 'Edit' : 'Write') + '</h1></header>' +
+    '<form id="ed" class="panel" autocomplete="off">' +
     '<div class="r2"><label>Type<select id="f-type"><option value="note">Note</option><option value="article">Article</option><option value="link">Link</option></select></label>' +
     '<label>Date<input id="f-date" type="date"></label></div>' +
     '<label>Title<input id="f-title" maxlength="140"></label>' +
@@ -81,7 +107,7 @@ function editorView(existing) {
     '<p class="hint">## Heading &nbsp;·&nbsp; &gt; quote | author &nbsp;·&nbsp; - list item &nbsp;·&nbsp; ``` on its own line to start and end code</p>' +
     '<label>Sources<textarea id="f-sources" rows="4" placeholder="Title | https://link | optional note"></textarea></label>' +
     '<p class="hint">One source per line.</p><p class="err" id="err" role="alert"></p>' +
-    '<div class="tools"><button class="primary" id="save" type="submit">Publish</button><a href="#/writing' + (existing ? '/' + esc(existing.id) : '') + '">Cancel</a></div></form>');
+    '<div class="tools"><button class="primary" id="save" type="submit">Publish</button><a href="#/writing' + (existing ? '/' + esc(existing.id) : '') + '">Cancel</a></div></form>', 'form');
   const f = n => document.getElementById('f-' + n);
   names.forEach(n => {
     f(n).value = v[n];
@@ -106,12 +132,14 @@ function editorView(existing) {
   };
 }
 
+// ---------- routing ----------
 function route() {
   const h = decodeURIComponent(location.hash);
   const open = h.startsWith('#/writing');
   blog.hidden = !open;
   document.documentElement.style.overflow = open ? 'hidden' : '';
   window.PAUSE = open;
+  blog.onscroll = null;
   if (!open) { document.title = HOME_TITLE; return; }
   document.title = 'Writing — Kishore Sakthivel';
   const parts = h.split('/').slice(2);
@@ -120,7 +148,7 @@ function route() {
   else if (parts[0] === 'new' && Store.canWrite) editorView(null);
   else if (parts[0] === 'edit' && Store.canWrite && get(parts[1])) editorView(get(parts[1]));
   else if (parts[0] && get(parts[0])) { postView(get(parts[0])); document.title = get(parts[0]).title + ' — Kishore Sakthivel'; }
-  else if (parts[0] && Store.loading) blog.innerHTML = shell('<p class="intro">Loading…</p>');
+  else if (parts[0] && Store.loading) blog.innerHTML = shell('<p class="empty">Loading…</p>');
   else listView();
   blog.scrollTop = 0;
 }

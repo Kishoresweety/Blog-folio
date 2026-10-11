@@ -57,7 +57,11 @@ Touch screens skip the tilt. Everything moves less or not at all for visitors wh
 
 ## Writing: notes, articles and links
 
-Posts open at `/#/writing`. There are three kinds:
+Posts open at `/#/writing`. The writing pages have their own light design, separate from the dark home page: paper `#EDECE6` (about 50%), blue `#1546D9` (about 30%) and amber `#F9B318` (about 10%). Blue is used for the mastheads, titles and links. Amber is only a fill behind dark text, never text itself, because it is too pale to read on paper. Body text is set in Newsreader and the interface in Inter.
+
+Motion on these pages: rings ripple out from an amber dot in each masthead, cards rise in one after another, an amber highlighter sweeps under a card title on hover, and an amber bar fills along the top as you read a post. Reduced-motion settings turn all of it off.
+
+There are three kinds of post:
 
 - **Note**: a short thought or log entry
 - **Article**: a long piece
