@@ -6,17 +6,20 @@ let filter = 'all';
 
 // ---------- small helpers ----------
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (_) { return ''; } };
-const wordCount = p => (p.body || []).map(b => typeof b === 'string' ? b : (b.h || b.quote || b.code || (b.list || []).join(' ') || '')).join(' ').split(/\s+/).filter(Boolean).length;
+const wordCount = p => (p.body || []).map(b => typeof b === 'string' ? b : (b.h || b.h3 || b.quote || b.code || (b.list || []).join(' ') || '')).join(' ').split(/\s+/).filter(Boolean).length;
 const readTime = p => Math.max(1, Math.round(wordCount(p) / 200)) + ' min read';
 const badge = t => '<span class="badge b-' + esc(t) + '">' + esc(TYPE[t] || t) + '</span>';
 const ripple = '<div class="deco" aria-hidden="true"><i></i><i></i><i></i><b></b></div>';
 
 const block = b => {
-  if (typeof b === 'string') return '<p>' + esc(b) + '</p>';
-  if (b.h) return '<h2>' + esc(b.h) + '</h2>';
-  if (b.quote) return '<blockquote>' + esc(b.quote) + (b.by ? '<cite>' + esc(b.by) + '</cite>' : '') + '</blockquote>';
+  if (typeof b === 'string') return '<p>' + inline(b) + '</p>';
+  if (b.h) return '<h2>' + inline(b.h) + '</h2>';
+  if (b.h3) return '<h3>' + inline(b.h3) + '</h3>';
+  if (b.img) return isUrl(b.img) ? '<figure class="fig"><img src="' + esc(imageUrl(b.img)) + '" alt="' + esc(b.alt || '') + '" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add(\'bad\')">' +
+    (b.alt ? '<figcaption>' + esc(b.alt) + '</figcaption>' : '') + '<p class="nofig">Image could not load. <a class="ext" href="' + esc(b.img) + '" target="_blank" rel="noopener noreferrer">Open the link</a>. For Google Drive set sharing to "Anyone with the link".</p></figure>' : '';
+  if (b.quote) return '<blockquote>' + inline(b.quote) + (b.by ? '<cite>' + esc(b.by) + '</cite>' : '') + '</blockquote>';
   if (b.code) return '<pre><code>' + esc(b.code) + '</code></pre>';
-  if (b.list) return '<ul>' + b.list.map(i => '<li>' + esc(i) + '</li>').join('') + '</ul>';
+  if (b.list) return '<ul>' + b.list.map(i => '<li>' + inline(i) + '</li>').join('') + '</ul>';
   return '';
 };
 
@@ -104,7 +107,7 @@ function editorView(existing) {
     '<label>Summary<input id="f-summary" maxlength="220" placeholder="One line shown in lists"></label>' +
     '<label>Tags<input id="f-tags" placeholder="comma, separated"></label>' +
     '<label>Body<textarea id="f-body" rows="14" placeholder="Blank line = new paragraph"></textarea></label>' +
-    '<p class="hint">## Heading &nbsp;·&nbsp; &gt; quote | author &nbsp;·&nbsp; - list item &nbsp;·&nbsp; ``` on its own line to start and end code</p>' +
+    '<p class="hint">## Heading &nbsp;·&nbsp; ### Subheading &nbsp;·&nbsp; **bold** &nbsp;·&nbsp; [text](https://link) or a plain https link &nbsp;·&nbsp; ![caption](image link) on its own line &nbsp;·&nbsp; &gt; quote | author &nbsp;·&nbsp; - list item &nbsp;·&nbsp; ``` on its own line to start and end code</p>' +
     '<label>Sources<textarea id="f-sources" rows="4" placeholder="Title | https://link | optional note"></textarea></label>' +
     '<p class="hint">One source per line.</p><p class="err" id="err" role="alert"></p>' +
     '<div class="tools"><button class="primary" id="save" type="submit">Publish</button><a href="#/writing' + (existing ? '/' + esc(existing.id) : '') + '">Cancel</a></div></form>', 'form');

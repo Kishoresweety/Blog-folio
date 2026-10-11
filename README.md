@@ -79,11 +79,18 @@ Body format:
 
 ```
 ## A heading
-A paragraph. A blank line starts a new one.
+### A smaller subheading
+A paragraph with **bold text**, a [labelled link](https://example.com) and a plain https://example.com link.
+![Caption shown under the image](https://drive.google.com/file/d/FILE_ID/view)
 > A quote | Who said it
 - A list item
 ```
-A line containing only three backticks starts and ends a code block.
+
+- A blank line starts a new paragraph.
+- Links are underlined in blue and open in a new tab. Only `http` and `https` links work.
+- **Images are links, not uploads.** Put `![caption](link)` on its own line (the caption is optional). Google Drive share links and GitHub `blob` links are converted to direct image addresses automatically. A bare link ending in `.png`, `.jpg`, `.gif`, `.webp` or `.svg` on its own line also becomes an image.
+- For a Google Drive image, set sharing to **Anyone with the link**. If an image cannot load, the post shows a note with the link instead.
+- A line containing only three backticks starts and ends a code block.
 
 Sources, one per line:
 

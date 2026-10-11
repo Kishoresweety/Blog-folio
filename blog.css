@@ -116,6 +116,16 @@
 .post blockquote { margin: 1.8em 0; padding: 2px 0 2px 22px; border-left: 4px solid var(--blue); font-size: 23px; line-height: 1.5; font-style: italic; }
 .post cite { display: block; margin-top: 8px; font: 500 12px/1.4 'IBM Plex Mono', monospace; font-style: normal; color: var(--ink-soft); }
 .post pre { margin: 1.6em 0; padding: 18px 20px; overflow: auto; background: var(--ink); color: var(--paper); border-radius: 16px; font: 13.5px/1.65 'IBM Plex Mono', monospace; }
+.post h3 { margin: 1.7em 0 .45em; font: 600 20px/1.3 'Inter', system-ui, sans-serif; letter-spacing: -.015em; color: var(--blue); }
+.post strong { font-weight: 700; color: var(--ink); }
+.post a.ext, .item a.ext { color: var(--blue); text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--blue) 45%, transparent); overflow-wrap: anywhere; transition: text-decoration-color .2s, background-color .2s; }
+.post a.ext:hover { text-decoration-color: var(--blue); background: rgba(249, 179, 24, .35); }
+.post .fig { margin: 2em 0; }
+.post .fig img { display: block; width: 100%; height: auto; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); }
+.post .fig figcaption { margin-top: 10px; font: 500 12.5px/1.5 'IBM Plex Mono', monospace; color: var(--ink-soft); text-align: center; }
+.post .fig .nofig { display: none; margin: 0; padding: 16px 18px; border: 1px dashed var(--blue); border-radius: 14px; font: 14px/1.6 'Inter', system-ui, sans-serif; color: var(--ink-soft); }
+.post .fig.bad img, .post .fig.bad figcaption { display: none; }
+.post .fig.bad .nofig { display: block; }
 .post ul { list-style: none; padding: 0; margin: 0 0 1.25em; }
 .post li { position: relative; padding-left: 26px; margin-bottom: .55em; }
 .post li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 9px; height: 9px; border-radius: 3px; background: var(--blue); }

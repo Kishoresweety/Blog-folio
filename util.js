@@ -35,7 +35,7 @@ async function initStore() {
 // blank line = new paragraph | "## " heading | "> quote | author" | "- " list item | ``` fenced code
 function textToBody(text) {
   const out = [], lines = text.replace(/\r/g, '').split('\n');
-  let para = [], list = [], code = null;
+  let para = [], list = [], code = null, m;
   const flush = () => {
     if (para.length) out.push(para.join(' ')); para = [];
     if (list.length) out.push({list}); list = [];
@@ -45,7 +45,10 @@ function textToBody(text) {
     const l = raw.trim();
     if (l === '```') { flush(); code = []; }
     else if (!l) flush();
+    else if (l.startsWith('### ')) { flush(); out.push({h3: l.slice(4)}); }
     else if (l.startsWith('## ')) { flush(); out.push({h: l.slice(3)}); }
+    else if ((m = l.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/))) { flush(); out.push(m[1] ? {img: m[2], alt: m[1]} : {img: m[2]}); }
+    else if (/^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg|avif)(\?\S*)?$/i.test(l)) { flush(); out.push({img: l}); }
     else if (l.startsWith('> ')) { flush(); const [q, ...by] = l.slice(2).split(' | '); out.push(by.length ? {quote: q, by: by.join(' | ')} : {quote: q}); }
     else if (l.startsWith('- ')) { if (para.length) { out.push(para.join(' ')); para = []; } list.push(l.slice(2)); }
     else { if (list.length) { out.push({list}); list = []; } para.push(l); }
@@ -56,7 +59,7 @@ function textToBody(text) {
 }
 function bodyToText(blocks) {
   return (blocks || []).map(b => typeof b === 'string' ? b :
-    b.h ? '## ' + b.h : b.quote ? '> ' + b.quote + (b.by ? ' | ' + b.by : '') :
+    b.h ? '## ' + b.h : b.h3 ? '### ' + b.h3 : b.img ? '![' + (b.alt || '') + '](' + b.img + ')' : b.quote ? '> ' + b.quote + (b.by ? ' | ' + b.by : '') :
     b.code ? '```\n' + b.code + '\n```' : b.list ? b.list.map(i => '- ' + i).join('\n') : '').join('\n\n');
 }
 // sources: one per line, "Title | https://url | optional note"
@@ -71,3 +74,31 @@ function textToSources(text) {
 }
 const sourcesToText = s => (s || []).map(x => [x.title, x.url, x.note].filter(Boolean).join(' | ')).join('\n');
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'post';
+
+// ---- Inline text: **bold**, [label](url) and bare URLs. Everything is escaped; only http(s) links are made. ----
+const INLINE_SRC = /\*\*(.+?)\*\*|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<]+)/g;
+function inline(s) {
+  let out = '', last = 0, m;
+  const INLINE = new RegExp(INLINE_SRC.source, 'g');
+  while ((m = INLINE.exec(s))) {
+    out += esc(s.slice(last, m.index));
+    last = m.index + m[0].length;
+    if (m[1] !== undefined) out += '<strong>' + inline(m[1]) + '</strong>';
+    else if (m[2] !== undefined) out += '<a class="ext" href="' + esc(m[3]) + '" target="_blank" rel="noopener noreferrer">' + esc(m[2]) + '</a>';
+    else {
+      let url = m[4], tail = '';
+      const t = url.match(/[.,;:!?)\]'"]+$/);
+      if (t) { tail = t[0]; url = url.slice(0, -tail.length); }
+      out += '<a class="ext" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(url.replace(/^https?:\/\/(www\.)?/, '')) + '</a>' + esc(tail);
+    }
+  }
+  return out + esc(s.slice(last));
+}
+// Turn a share link into a direct image address (Google Drive and GitHub pages do not load as <img> directly).
+function imageUrl(u) {
+  let m = u.match(/drive\.google\.com\/file\/d\/([\w-]+)/) || u.match(/drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([\w-]+)/);
+  if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1600';
+  m = u.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/(.+?)(\?.*)?$/);
+  if (m) return 'https://raw.githubusercontent.com/' + m[1] + '/' + m[2] + '/' + m[3];
+  return u;
+}
