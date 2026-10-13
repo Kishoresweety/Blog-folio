@@ -1,5 +1,5 @@
 // Home page UI: email copy, project cards, hypothesis tabs
-$('cp').onclick=e=>{try{navigator.clipboard.writeText('kishore.sakthivel@zohomail.in')}catch(_){}e.target.textContent='Copied ✓'};
+$('cp').onclick=e=>{try{navigator.clipboard.writeText('contact@kishore.buzz')}catch(_){}e.target.textContent='Copied ✓'};
 document.querySelectorAll('.pc').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
 const AR=[['Do compact-measurement latents retrieve the right state family?','Retrieval accuracy climbs steeply, then saturates at a measurement count far below the state dimension.','It only matches a random-projection baseline on classical data, so there is no quantum-specific gain.'],
 ['Can a frozen generative model condition on the latent?','A small adapter on the latent beats the unconditioned model on sample fidelity.','The gain disappears once parameter count is matched.'],

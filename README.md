@@ -169,4 +169,4 @@ vercel.json   Security headers and clean URLs
 ## Contact
 
 Kishore Sakthivel — Thanjavur, India (open to relocation)
-kishore.sakthivel@zohomail.in
+contact@kishore.buzz
