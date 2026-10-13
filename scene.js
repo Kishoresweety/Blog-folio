@@ -31,7 +31,7 @@ $('th').onclick=()=>{rt.dataset.theme=dark()?'light':'dark'};
 function loop(){
 if(window.PAUSE){requestAnimationFrame(loop);return}
 const m=$('m').value/100,cnt=Math.max(6,Math.round(N*m)),dk=dark(),th=SH[st]===6?.014:.0025;
-$('hl').innerHTML='measured <b>'+cnt+'</b> of '+N+' amplitudes · <b>'+Math.round(m*100)+'%</b>';
+$('hl').innerHTML='<b>'+cnt+'</b>/'+N+' measured · <b>'+Math.round(m*100)+'%</b>';
 hue+=(hues[st]-hue)*.04;const hr=Math.round(hue);if(hr!==shown*0-1&&hr!==loop.h){loop.h=hr;rt.style.setProperty('--a','hsl('+hr+' 95% '+(dk?62:40)+'%)')}
 const tx=mob?W/2:(SEC[st].classList.contains('R')?W*.27:W*.72),ty=mob?H*.24:H*.5;
 cx+=(tx-cx)*.06||0;cy+=(ty-cy)*.06;if(!cx)cx=tx;
