@@ -86,7 +86,15 @@ A paragraph with **bold text**, a [labelled link](https://example.com) and a pla
 - A list item
 ```
 
-- A blank line starts a new paragraph.
+- A blank line starts a new paragraph. A single new line inside a paragraph is a line break.
+- **Tables** use the usual Markdown form. The second line sets the columns, and colons set alignment (`:---:` centre, `---:` right). Write `\|` for a bar inside a cell. Bold and links work inside cells, and wide tables scroll sideways on a phone.
+
+  ```
+  | Test | Metric | Result |
+  | --- | :---: | ---: |
+  | Search | recall@10 | **0.82** |
+  | Verify | AUROC | 0.91 |
+  ```
 - Links are underlined in blue and open in a new tab. Only `http` and `https` links work.
 - **Images are links, not uploads.** Put `![caption](link)` on its own line (the caption is optional). Google Drive share links and GitHub `blob` links are converted to direct image addresses automatically. A bare link ending in `.png`, `.jpg`, `.gif`, `.webp` or `.svg` on its own line also becomes an image.
 - For a Google Drive image, set sharing to **Anyone with the link**. If an image cannot load, the post shows a note with the link instead.

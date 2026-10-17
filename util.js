@@ -33,33 +33,50 @@ async function initStore() {
 
 // ---- Editor text format <-> structured blocks ----
 // blank line = new paragraph | "## " heading | "> quote | author" | "- " list item | ``` fenced code
+// Table helpers: "| a | b |" rows, a "|---|:--:|" separator under the header. Write \| for a literal bar.
+const isSep = l => !!l && /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/.test(l) && l.includes('|');
+const cells = l => l.trim().replace(/^\|/, '').replace(/(?<!\\)\|$/, '').split(/(?<!\\)\|/).map(c => c.replace(/\\\|/g, '|').trim());
 function textToBody(text) {
   const out = [], lines = text.replace(/\r/g, '').split('\n');
   let para = [], list = [], code = null, m;
   const flush = () => {
-    if (para.length) out.push(para.join(' ')); para = [];
+    if (para.length) out.push(para.join('\n')); para = [];
     if (list.length) out.push({list}); list = [];
   };
-  for (const raw of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
     if (code) { if (raw.trim() === '```') { out.push({code: code.join('\n')}); code = null; } else code.push(raw); continue; }
     const l = raw.trim();
     if (l === '```') { flush(); code = []; }
     else if (!l) flush();
+    else if (l.startsWith('|') && isSep(lines[i + 1])) {
+      flush();
+      const head = cells(l), align = cells(lines[i + 1].trim()).map(c => /^:-*:$/.test(c) ? 'center' : /-:$/.test(c) ? 'right' : '');
+      const rows = [];
+      i += 2;
+      while (i < lines.length && lines[i].trim().startsWith('|')) { rows.push(cells(lines[i].trim())); i++; }
+      i--;
+      out.push({table: {head, align, rows}});
+    }
     else if (l.startsWith('### ')) { flush(); out.push({h3: l.slice(4)}); }
     else if (l.startsWith('## ')) { flush(); out.push({h: l.slice(3)}); }
     else if ((m = l.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/))) { flush(); out.push(m[1] ? {img: m[2], alt: m[1]} : {img: m[2]}); }
     else if (/^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg|avif)(\?\S*)?$/i.test(l)) { flush(); out.push({img: l}); }
     else if (l.startsWith('> ')) { flush(); const [q, ...by] = l.slice(2).split(' | '); out.push(by.length ? {quote: q, by: by.join(' | ')} : {quote: q}); }
-    else if (l.startsWith('- ')) { if (para.length) { out.push(para.join(' ')); para = []; } list.push(l.slice(2)); }
-    else { if (list.length) { out.push({list}); list = []; } para.push(l); }
+    else if (l.startsWith('- ')) { if (para.length) { out.push(para.join('\n')); para = []; } list.push(l.slice(2)); }
+    else { if (list.length) { out.push({list}); list = []; } para.push(raw.replace(/\s+$/, '').trimStart()); }
   }
   if (code) out.push({code: code.join('\n')});
   flush();
   return out;
 }
+function tableToText(t) {
+  const row = r => '| ' + r.map(c => String(c).replace(/\|/g, '\\|')).join(' | ') + ' |';
+  return [row(t.head), '|' + t.align.map(a => a === 'center' ? ' :---: ' : a === 'right' ? ' ---: ' : ' --- ').join('|') + '|', ...t.rows.map(row)].join('\n');
+}
 function bodyToText(blocks) {
   return (blocks || []).map(b => typeof b === 'string' ? b :
-    b.h ? '## ' + b.h : b.h3 ? '### ' + b.h3 : b.img ? '![' + (b.alt || '') + '](' + b.img + ')' : b.quote ? '> ' + b.quote + (b.by ? ' | ' + b.by : '') :
+    b.table ? tableToText(b.table) : b.h ? '## ' + b.h : b.h3 ? '### ' + b.h3 : b.img ? '![' + (b.alt || '') + '](' + b.img + ')' : b.quote ? '> ' + b.quote + (b.by ? ' | ' + b.by : '') :
     b.code ? '```\n' + b.code + '\n```' : b.list ? b.list.map(i => '- ' + i).join('\n') : '').join('\n\n');
 }
 // sources: one per line, "Title | https://url | optional note"
@@ -92,7 +109,7 @@ function inline(s) {
       out += '<a class="ext" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(url.replace(/^https?:\/\/(www\.)?/, '')) + '</a>' + esc(tail);
     }
   }
-  return out + esc(s.slice(last));
+  return (out + esc(s.slice(last))).replace(/\n/g, '<br>');
 }
 // Turn a share link into a direct image address (Google Drive and GitHub pages do not load as <img> directly).
 function imageUrl(u) {
